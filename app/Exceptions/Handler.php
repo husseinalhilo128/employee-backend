@@ -28,8 +28,11 @@ class Handler extends ExceptionHandler
     {
         return response()->json([
             'error' => true,
+            'exception' => get_class($exception),
             'message' => $exception->getMessage(),
-            'trace' => $exception->getTrace()
+            'file' => $exception->getFile(),
+            'line' => $exception->getLine(),
+            'trace' => collect($exception->getTrace())->take(5)
         ], 500);
     }
 }
