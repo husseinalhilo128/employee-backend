@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\LeaveController;
@@ -14,7 +15,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\RegisterApprovalController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DisciplineController;
-use App\Http\Controllers\AdminController; // ✅ تأكد من تضمينه
+use App\Http\Controllers\AdminController;
 
 // ✅ مسارات لا تحتاج توكن
 Route::post('/register', [AuthController::class, 'register']);
@@ -29,7 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile/statistics', [ProfileController::class, 'statistics']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // ✅ عرض إحصائيات أي موظف (مضاف)
+    // ✅ عرض إحصائيات أي موظف
     Route::get('/employees/{id}/statistics', [ProfileController::class, 'statisticsForUser']);
 
     // الحضور والانصراف
@@ -39,8 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // الإجازات
     Route::post('/leaves', [LeaveController::class, 'store']);
-    Route::get('/leaves', [LeaveController::class, 'index']);           // للمسؤول فقط
-    Route::get('/leaves/my', [LeaveController::class, 'myLeaves']);     // للمستخدم الحالي فقط
+    Route::get('/leaves', [LeaveController::class, 'index']);
+    Route::get('/leaves/my', [LeaveController::class, 'myLeaves']);
     Route::post('/leaves/{id}/approve', [LeaveController::class, 'approve']);
     Route::post('/leaves/{id}/reject', [LeaveController::class, 'reject']);
 
@@ -61,8 +62,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/reports/{id}/details', [ReportController::class, 'dailyDetails'])->name('monthly.report.details');
     Route::post('/reports/generate', [ReportController::class, 'generateMonthlyReports']);
     Route::get('/reports/{id}/live', [ReportController::class, 'getLiveReport']);
-
-    // ✅ تقرير الحضور اليومي (جديد)
     Route::get('/daily-report', [ReportController::class, 'dailyAttendance']);
 
     // ✅ حذف بيانات قديمة
@@ -91,4 +90,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // المواقع
     Route::get('/locations/active-delegates', [LocationController::class, 'activeDelegates']);
     Route::get('/locations/{id}/track', [LocationController::class, 'track']);
+});
+
+// ✅ مسار مؤقت لعرض سجل الأخطاء
+Route::get('/debug-log', function () {
+    $path = storage_path('logs/laravel.log');
+    if (File::exists($path)) {
+        return response(File::get($path), 200)
+            ->header('Content-Type', 'text/plain');
+    }
+    return response('Log file not found.', 404);
 });
