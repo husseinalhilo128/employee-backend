@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Attendance;
 
 class LocationController extends Controller
 {
@@ -62,27 +63,28 @@ class LocationController extends Controller
             return response()->json(['message' => 'غير مصرح'], 403);
         }
 
-        $delegates = User::where('role', 'delivery')
-            ->whereNotNull('latitude')
-            ->whereNotNull('longitude')
-            ->whereHas('attendances', function ($query) {
-                $query->whereDate('date', now())
-                      ->whereNull('check_out');
-            })
-            ->get(['id', 'name', 'latitude', 'longitude', 'profile_image']);
+        $today = now()->toDateString();
 
-        $delegates = $delegates->map(function ($user) {
+        $attendances = Attendance::with('user')
+            ->whereDate('date', $today)
+            ->whereNull('check_out')
+            ->whereHas('user', function ($q) {
+                $q->where('role', 'delivery')->where('approved', true);
+            })
+            ->get();
+
+        $delegates = $attendances->map(function ($record) {
             return [
-                'id' => $user->id,
-                'name' => $user->name,
-                'profile_image_url' => $user->profile_image
-                    ? asset('storage/' . $user->profile_image)
+                'id' => $record->user->id,
+                'name' => $record->user->name,
+                'profile_image_url' => $record->user->profile_image
+                    ? asset('storage/' . $record->user->profile_image)
                     : null,
-                'latitude' => $user->latitude,
-                'longitude' => $user->longitude,
+                'attendance_id' => $record->id,
+                'check_in' => $record->check_in,
             ];
         });
 
-        return response()->json($delegates);
+        return response()->json($delegates->values());
     }
 }
