@@ -70,6 +70,8 @@ Route::middleware('auth:sanctum')->group(function () {
     // الإشعارات
     Route::post('/notifications/send', [NotificationController::class, 'send']);
     Route::get('/notifications', [NotificationController::class, 'myNotifications']);
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead']);
 
     // الفروع
     Route::get('/branches', [BranchController::class, 'index']);

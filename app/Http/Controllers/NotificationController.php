@@ -45,4 +45,28 @@ class NotificationController extends Controller
 
         return response()->json($notifications);
     }
+
+    /**
+     * عدد الإشعارات غير المقروءة للمستخدم الحالي
+     */
+    public function unreadCount()
+    {
+        $count = Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->count();
+
+        return response()->json(['count' => $count]);
+    }
+
+    /**
+     * تعليم كل الإشعارات كمقروءة
+     */
+    public function markAsRead()
+    {
+        Notification::where('user_id', Auth::id())
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
+
+        return response()->json(['message' => 'تم تعليم كل الإشعارات كمقروءة']);
+    }
 }

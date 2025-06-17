@@ -44,6 +44,13 @@ class LeaveController extends Controller
             'status' => 'pending',
         ]);
 
+        // ✅ إشعار عند تقديم الطلب
+        Notification::create([
+            'user_id' => $user->id,
+            'title' => 'تم تقديم طلب إجازة',
+            'body' => 'تم إرسال طلب إجازة بتاريخ ' . $leave->date,
+        ]);
+
         return response()->json(['message' => 'تم إرسال طلب الإجازة', 'data' => $leave]);
     }
 
@@ -82,9 +89,10 @@ class LeaveController extends Controller
         $leave->status = $request->status;
         $leave->save();
 
+        // ✅ إشعار عند الموافقة أو الرفض
         Notification::create([
             'user_id' => $leave->user_id,
-            'title' => 'طلب الإجازة',
+            'title' => 'تحديث على طلب الإجازة',
             'body' => $leave->status === 'approved'
                 ? 'تمت الموافقة على طلب الإجازة الخاص بك'
                 : 'تم رفض طلب الإجازة الخاص بك',

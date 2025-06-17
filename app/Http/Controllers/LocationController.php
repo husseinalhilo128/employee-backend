@@ -87,4 +87,23 @@ class LocationController extends Controller
 
         return response()->json($delegates->values());
     }
+
+    /**
+     * ✅ تتبع مندوب معين (للمسؤول فقط)
+     */
+    public function track($id)
+    {
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            return response()->json(['message' => 'غير مصرح'], 403);
+        }
+
+        $user = User::findOrFail($id);
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'latitude' => $user->latitude,
+            'longitude' => $user->longitude,
+        ]);
+    }
 }
