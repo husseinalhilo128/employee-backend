@@ -1,1 +1,3 @@
-*.sqlite*
+# Ignore all sqlite files except main database
+database/*.sqlite
+!database/database.sqlite
