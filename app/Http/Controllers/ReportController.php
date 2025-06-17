@@ -37,14 +37,19 @@ class ReportController extends Controller
         $days = $attendanceGrouped->map(function ($records, $date) {
             $first = $records->first();
             $last = $records->last();
-            $branch = Branch::find($first->branch_id);
+
+            $branchName = $first->branch_name ?? null;
+            if (!$branchName && $first->branch_id) {
+                $branch = Branch::find($first->branch_id);
+                $branchName = $branch?->name ?? 'غير معروف';
+            }
 
             return [
                 'date' => $date,
                 'weekday' => Carbon::parse($date)->translatedFormat('l'),
                 'check_in' => $first->check_in,
                 'check_out' => $last->check_out,
-                'branch_name' => $branch?->name ?? 'غير معروف',
+                'branch_name' => $branchName ?? 'غير معروف',
                 'shift_type' => $first->shift_type ?? '-',
                 'notes' => $last->auto_checkout ? 'تم تسجيل انصراف تلقائي' : null,
             ];
