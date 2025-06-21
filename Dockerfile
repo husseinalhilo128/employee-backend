@@ -35,8 +35,10 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf \
     && sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf \
     && sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-# إعداد Laravel عند التشغيل
+# إعداد Laravel عند التشغيل (مع تشغيل Seeder للفروع وتفعيل الأدمن)
 CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
+    php artisan migrate --force && \
+    php artisan db:seed --force && \
     apache2-foreground

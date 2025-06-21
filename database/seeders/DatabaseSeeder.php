@@ -11,7 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // استدعاء Seeder الخاص بالفروع فقط
-        $this->call(BranchSeeder::class);
+        // ✅ استدعاء Seeders بالترتيب المناسب
+        $this->call([
+            BranchSeeder::class,
+            AdminUserSeeder::class,
+        ]);
     }
 }
